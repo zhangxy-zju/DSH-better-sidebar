@@ -1161,16 +1161,27 @@ export function FileTree(props: {
     onStale: retryDirs,
   })
 
+  // A reveal request must stay pending while its lazy level loads or its row
+  // waits to be selected, but ordinary expansion/listing updates after that
+  // request completes must not scroll the reader back to the highlighted row.
+  // revealPaths issues a fresh array even for the same path, so an explicit
+  // repeat remains a new request. Keep this effect before the scrolling one:
+  // React runs effects in declaration order within a commit.
+  const revealScrollPending = useRef(false)
+  useEffect(() => {
+    revealScrollPending.current = revealed.length > 0
+  }, [revealed])
+
   // Bring a "Show in folder" reveal into view: the ancestors expand above
   // (revealPaths), but the row may not be scrolled into sight — a reveal on
-  // a long tree should surface the highlighted file. Re-runs when the tree
-  // data or reveal set changes (the row appears after its level loads).
-  // Scrolls ONLY this tree's body: scrollIntoView would scroll every
-  // scrollable ancestor, and the clipping panel host
+  // a long tree should surface the highlighted file. Re-runs while the request
+  // is pending and the tree data or selection changes (the row may appear only
+  // after its level loads). Scrolls ONLY this tree's body: scrollIntoView would
+  // scroll every scrollable ancestor, and the clipping panel host
   // ([data-dsh-panel-host]) is still programmatically scrollable — a deep
   // reveal shifted the whole panel, tab bar included, out of the viewport.
   useEffect(() => {
-    if (revealed.length === 0 || propsRef.current.hidden === true) return
+    if (!revealScrollPending.current || revealed.length === 0 || propsRef.current.hidden === true) return
     const body = bodyRef.current
     if (body === null) return
     const row = body.querySelector<HTMLElement>('[data-dsh-revealed][data-dsh-selected]')
@@ -1179,6 +1190,7 @@ export function FileTree(props: {
     const rowRect = row.getBoundingClientRect()
     const target = body.scrollTop + (rowRect.top + rowRect.height / 2) - (bodyTop + body.clientHeight / 2)
     const max = Math.max(body.scrollHeight - body.clientHeight, 0)
+    revealScrollPending.current = false
     body.scrollTo({ top: Math.min(Math.max(target, 0), max), behavior: 'smooth' })
   }, [revealed, data, props.hidden, selected])
 

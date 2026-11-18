@@ -464,3 +464,35 @@ test('the explorer keeps its state across a tab switch and a conversation round 
 
   await page.screenshot({ path: 'test-results/tree-state-restored.png' })
 })
+
+test('a completed file reveal does not reclaim scrolling when another directory expands', async ({ page }) => {
+  await page.goto(PAGE_URL, { waitUntil: 'domcontentloaded' })
+  await expect(page.locator('[data-dsh-better-sidebar]')).toBeAttached({ timeout: 90_000 })
+  await dismissOnboarding(page)
+  await sendFirstMessage(page)
+  await openFiles(page)
+  const target = page.locator(`${TREE_BODY} [role="button"][title$="seed-079.txt"]:visible`)
+  await target.click()
+  const reveal = page.getByRole('button', { name: /^(Reveal current file in file tree|在目录树中定位当前文件)$/ })
+  await expect(reveal).toBeVisible({ timeout: 30_000 })
+  await reveal.click()
+  await expect(target).toHaveAttribute('data-dsh-selected', 'true', { timeout: 30_000 })
+  const body = page.locator(TREE_BODY).first()
+  await expect.poll(() => body.evaluate(el => el.scrollTop), { timeout: 30_000 }).toBeGreaterThan(0)
+  await page.waitForTimeout(600) // Let the reveal's smooth scroll settle.
+
+  // Move away from the bottom file, to a position where beta is already
+  // clickable: Playwright must not auto-scroll a distant folder into view and
+  // make the test confuse that native action with reveal scrolling.
+  await body.evaluate((el) => { el.scrollTop = 0 })
+  const before = await body.evaluate(el => el.scrollTop)
+  await page.locator(dirRow('beta')).click()
+  await expect(page.locator(innerRow('beta')).first()).toBeVisible({ timeout: 30_000 })
+  // Allow every passive effect from the newly loaded directory to settle. An
+  // unguarded reveal effect reruns on this data update and re-centers the file.
+  await page.waitForTimeout(600)
+  expect(await body.evaluate(el => el.scrollTop), 'expanding beta must not scroll back to the revealed file').toBe(before)
+
+  await reveal.click()
+  await expect.poll(() => body.evaluate(el => el.scrollTop), { timeout: 30_000 }).toBeGreaterThan(before)
+})

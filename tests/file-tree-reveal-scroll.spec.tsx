@@ -5,8 +5,9 @@
  * ([data-dsh-panel-host], overflow hidden at the time) is still
  * programmatically scrollable, so a deep reveal shifted the whole panel,
  * tab bar included, out of the viewport (reported on DSH 0.1.2-alpha.1).
- * The regression guard: body.scrollTo receives the centered, clamped
- * target; row.scrollIntoView is never called.
+ * The regression guards: body.scrollTo receives the centered, clamped
+ * target; row.scrollIntoView is never called; and a completed reveal stays
+ * spent across ordinary expansion and directory-listing updates.
  */
 // @vitest-environment jsdom
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -28,10 +29,12 @@ afterEach(() => { scrollIntoView.mockClear() })
 vi.mock('../src/client/api.ts', () => ({
   api: {
     fsTrees: async (_scope: unknown, paths: readonly string[]) => ({
-      levels: paths.map(path => ({ path, entries: [
-        { name: 'src', path: '/tmp/src', isDir: true },
-        { name: 'a.ts', path: '/tmp/a.ts', isDir: false },
-      ], truncated: false })),
+      levels: paths.map(path => ({ path, entries: path === '/tmp'
+        ? [
+            { name: 'src', path: '/tmp/src', isDir: true },
+            { name: 'a.ts', path: '/tmp/a.ts', isDir: false },
+          ]
+        : [{ name: 'b.ts', path: `${path}/b.ts`, isDir: false }], truncated: false })),
     }),
     // The tree reads the shared git-status store; a non-repo answer keeps
     // every row plain (this spec is about the reveal scroll).
@@ -42,7 +45,7 @@ vi.mock('../src/client/api.ts', () => ({
 
 interface TreeHarness {
   /** Re-render with new props; the refresh tick reloads the level cache. */
-  rerender: (revealed: string[], refreshTick: number) => Promise<void>
+  rerender: (revealed: string[], refreshTick: number, expanded?: string[]) => Promise<void>
   body: HTMLElement
   /** Pin one row's geometry (jsdom has no layout). */
   layoutRow: (top: number, height: number) => void
@@ -54,11 +57,11 @@ async function mountTree(bodyScroll: { top: number; client: number; height: numb
   const container = document.createElement('div')
   document.body.append(container)
   const root: Root = createRoot(container)
-  const render = (revealed: string[], refreshTick: number): void => {
+  const render = (revealed: string[], refreshTick: number, expanded: string[] = []): void => {
     root.render(createElement(FileTree, {
       sessionId: 's1',
       cwd: '/tmp',
-      expanded: [],
+      expanded,
       revealed,
       onToggle: () => {},
       onOpenFile: () => {},
@@ -77,7 +80,7 @@ async function mountTree(bodyScroll: { top: number; client: number; height: numb
   Object.defineProperty(body, 'scrollHeight', { value: bodyScroll.height })
   Object.defineProperty(body, 'scrollTop', { value: bodyScroll.top, writable: true })
   return {
-    rerender: async (revealed, refreshTick) => { await act(async () => { render(revealed, refreshTick) }) },
+    rerender: async (revealed, refreshTick, expanded) => { await act(async () => { render(revealed, refreshTick, expanded) }) },
     body,
     layoutRow: (top, height) => {
       const row = body.querySelector('[data-dsh-revealed]')
@@ -114,6 +117,27 @@ describe('FileTree reveal scrolling (show in folder)', () => {
     tree.layoutRow(9000, 20)
     await tree.rerender(['/tmp/a.ts'], 1)
     expect(tree.scrollTo.mock.calls.map(call => call[0]?.top)).toContainEqual(4700)
+    tree.unmount()
+  })
+
+  it('does not scroll back when directory data changes after a completed reveal', async () => {
+    const tree = await mountTree({ top: 0, client: 300, height: 1000 })
+    const revealed = ['/tmp/a.ts']
+    await tree.rerender(revealed, 0)
+    tree.layoutRow(400, 20)
+    await tree.rerender(revealed, 1)
+    expect(tree.scrollTo).toHaveBeenCalled()
+    tree.scrollTo.mockClear()
+
+    // Expansion preserves the reveal array: its listing update must not turn a
+    // completed reveal into a fresh scroll request.
+    await tree.rerender(revealed, 1, ['/tmp/src'])
+    await tree.rerender(revealed, 2, ['/tmp/src'])
+    expect(tree.scrollTo).not.toHaveBeenCalled()
+
+    // An explicit reveal of the same path is a new request and still scrolls.
+    await tree.rerender([...revealed], 2, ['/tmp/src'])
+    expect(tree.scrollTo).toHaveBeenCalledTimes(1)
     tree.unmount()
   })
 

@@ -3,14 +3,14 @@
 ## 现在怎么使用
 
 打开 Markdown 后，点击文件路径旁的 **◎ 在目录树中定位当前文件**。
-插件会打开编辑器的文件侧栏、清除活动搜索、逐级展开父目录、选择当前文件，并将目标滚动到目录视口中央。不会修改文件或会话、运行 model 或写 Git。
+插件会打开编辑器的文件侧栏、清除活动搜索、逐级展开父目录、选择当前文件，并将目标滚动到目录视口中央。完成定位后，再展开或刷新其它目录不会把滚动位置拉回目标文件。不会修改文件或会话、运行 model 或写 Git。
 
 - 宿主：DeepSeek Harness Web `0.2.2-rc.4`。
 
 - 官方基底：[`dsh-better-sidebar 0.32.1`](https://github.com/omdsh-dev/DSH-better-sidebar/releases/tag/v0.32.1)。
 - 本地补丁：`0.32.1-reveal.1`。
 - 安装源码：`/Users/mumu/Documents/Work/ADA/work-summary/ADA_WorkSpace/operations/dsh-better-sidebar`。
-- 取恢复源码：[个人 fork](https://github.com/zhangxy-zju/DSH-better-sidebar)，分支 `feat/reveal-current-file-0321`，当前 revision `35f0c38dde4ca354e8fbcf02fbada3961dc52b7f`。
+- 取恢复源码：[个人 fork](https://github.com/zhangxy-zju/DSH-better-sidebar)，分支 `feat/reveal-current-file-0321`，恢复时以远端实际 commit 为准。
 - 本目录是保留 `.git` 的插件 checkout；`node_modules/` 是开发依赖，`lib/` 为构建输出。它们不作为同步输入。
 
 官方 0.32.1 不具备完整的一键文件定位入口。这里的补丁在既有目录懒加载基础上实现精确定位；它不是官方新版本的承诺。
