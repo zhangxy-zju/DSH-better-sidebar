@@ -97,6 +97,9 @@ describe('FileTree reveal scrolling (show in folder)', () => {
     // target = 40 + (400 + 10) − (100 + 150) = 200.
     const tree = await mountTree({ top: 40, client: 300, height: 1000 })
     await tree.rerender(['/tmp/a.ts'], 0)
+    const target = tree.body.querySelector('[title="/tmp/a.ts"]')
+    expect(target?.getAttribute('data-dsh-selected')).toBe('true')
+    expect(target?.getAttribute('aria-pressed')).toBe('true')
     tree.layoutRow(400, 20)
     await tree.rerender(['/tmp/a.ts'], 1)
     expect(scrollIntoView).not.toHaveBeenCalled()

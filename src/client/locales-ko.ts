@@ -44,6 +44,7 @@ export const ko: Record<string, string> = {
   explorerExcludePlaceholder: '패턴 추가, 예: node_modules, *.log, **/.git',
   explorerExcludeAdd: '추가',
   explorerExcludeRemove: '제거',
+  revealCurrentFile: "현재 파일을 트리에서 찾기",
   editorTreeToggle: '파일 트리 패널',
   editorFileNotFound: '파일을 찾을 수 없습니다: {path}',
   editorMarkdownPathHint: 'Markdown이 Windows 경로의 백슬래시를 제거했을 수 있습니다. 슬래시를 사용하거나 경로를 코드 블록에 넣어 보세요.',

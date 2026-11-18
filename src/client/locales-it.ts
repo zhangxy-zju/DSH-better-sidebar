@@ -43,6 +43,7 @@ export const it: Record<string, string> = {
   explorerExcludePlaceholder: 'Aggiungi un modello, es. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Aggiungi',
   explorerExcludeRemove: 'Rimuovi',
+  revealCurrentFile: "Mostra il file corrente nell’albero",
   editorTreeToggle: 'Pannello dell’albero dei file',
   editorFileNotFound: 'File non trovato: {path}',
   editorMarkdownPathHint: 'Markdown potrebbe aver rimosso una barra inversa da questo percorso Windows. Prova con le barre normali oppure inserisci il percorso in un blocco di codice.',

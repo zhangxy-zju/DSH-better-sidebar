@@ -42,7 +42,7 @@
  * (VSCode semantics — a drop on a file row targets its parent directory),
  * and `busy` gates new drags while one upload is in flight.
  */
-import { memo, useCallback, useEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type DragEvent, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
@@ -1173,14 +1173,14 @@ export function FileTree(props: {
     if (revealed.length === 0 || propsRef.current.hidden === true) return
     const body = bodyRef.current
     if (body === null) return
-    const row = body.querySelector<HTMLElement>('[data-dsh-revealed]')
+    const row = body.querySelector<HTMLElement>('[data-dsh-revealed][data-dsh-selected]')
     if (row === null) return
     const bodyTop = body.getBoundingClientRect().top
     const rowRect = row.getBoundingClientRect()
     const target = body.scrollTop + (rowRect.top + rowRect.height / 2) - (bodyTop + body.clientHeight / 2)
     const max = Math.max(body.scrollHeight - body.clientHeight, 0)
     body.scrollTo({ top: Math.min(Math.max(target, 0), max), behavior: 'smooth' })
-  }, [revealed, data])
+  }, [revealed, data, props.hidden, selected])
 
   /** Copy `text`; on success flip the row's copied label for a moment. */
   const copyPath = useCallback((text: string, path: string): void => {
@@ -1245,6 +1245,13 @@ export function FileTree(props: {
     setSelection(next)
   }, [setSelection, toggleSelect])
 
+  // Ancestors and compact rows are navigation candidates only. The target can
+  // exist in the lazy level cache while still not being rendered (a deeper
+  // compact chain is loading), so exact current rows gate the final selection.
+  const revealTargetSet = useMemo(() => new Set(revealed), [revealed])
+  const revealTarget = visibleRowsRef.current.find(row => revealTargetSet.has(row.path)) ?? null
+  const revealSelectionRef = useRef<{ path: string; isDir: boolean } | null>(null)
+  const lastRevealedPathsRef = useRef<readonly string[]>([])
   const clearSelection = useCallback((): void => {
     if (selectedRef.current.size === 0) return
     anchorRef.current = null
@@ -2099,6 +2106,20 @@ export function FileTree(props: {
     return rows
   }, [chainFor, data, entriesFor, expandedSet, root])
   visibleRowsRef.current = visibleRows
+  useLayoutEffect(() => {
+    if (lastRevealedPathsRef.current !== revealed) {
+      revealSelectionRef.current = null
+      lastRevealedPathsRef.current = revealed
+    }
+    if (revealSelectionRef.current === revealTarget) return
+    revealSelectionRef.current = revealTarget
+    if (revealTarget !== null) {
+      anchorRef.current = revealTarget.path
+      kindRef.current.set(revealTarget.path, revealTarget.isDir)
+      selectedRef.current = new Set([revealTarget.path])
+      setSelected(selectedRef.current)
+    }
+  }, [revealed, visibleRows, revealTarget])
 
   /**
    * Focus + select an inline editor once, on mount. The callback identity

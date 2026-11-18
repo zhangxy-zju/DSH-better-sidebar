@@ -48,6 +48,7 @@ export const ru: Record<string, string> = {
   explorerExcludePlaceholder: 'Добавьте шаблон, напр. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Добавить',
   explorerExcludeRemove: 'Убрать',
+  revealCurrentFile: "Показать текущий файл в дереве",
   editorTreeToggle: 'Панель дерева файлов',
   editorFileNotFound: 'Файл не найден: {path}',
   editorMarkdownPathHint: 'Markdown мог удалить обратную косую черту из этого пути Windows. Используйте прямые косые черты или поместите путь в блок кода.',

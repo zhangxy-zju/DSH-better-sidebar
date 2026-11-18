@@ -35,6 +35,7 @@ export const sv: Record<string, string> = {
   explorerExcludePlaceholder: 'Lägg till mönster, t.ex. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Lägg till',
   explorerExcludeRemove: 'Ta bort',
+  revealCurrentFile: "Visa aktuell fil i trädet",
   editorTreeToggle: 'Filträdspanel',
   editorFileNotFound: 'Filen hittades inte: {path}',
   editorMarkdownPathHint: 'Markdown kan ha tagit bort ett omvänt snedstreck från den här Windows-sökvägen. Prova vanliga snedstreck eller placera sökvägen i ett kodblock.',

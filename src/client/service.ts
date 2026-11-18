@@ -174,6 +174,8 @@ export interface TabComponentProps {
   /** The explorer's reveal-highlight set (ExplorerView; "Show in folder" targets). */
   revealed?: string[]
   onToggleDir?: (path: string) => void
+  /** Expand/select a path in this tab's file tree (native-tab adapter supplied). */
+  onRevealFile?: (path: string) => void
   onReferenceFile?: (path: string, isDir: boolean) => void
   onOpenFile?: (path: string) => void
   onOpenDiff?: (tab: SidebarTab) => void
@@ -1011,7 +1013,7 @@ export function matchUrlTarget(tabs: readonly TabDescriptor[], url: URL): TabDes
  * The plugin version this service instance reports. Keep in lockstep with
  * `package.json`'s version — `tests/service.spec.ts` asserts the pair.
  */
-export const SIDEBAR_SERVICE_VERSION = '0.32.1'
+export const SIDEBAR_SERVICE_VERSION = '0.32.1-reveal.1'
 
 /**
  * Monotonic capability list consumers use to gate new API usage (features

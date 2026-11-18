@@ -10,7 +10,7 @@
  * operations are pure functions over the node, unit-tested in tests/state.spec.ts.
  */
 import { SIDEBAR_PREFS_DEFAULTS, type SidebarPrefs } from '../prefs-shared.ts'
-
+import { workspaceRelativePath } from './paths.ts'
 /**
  * Tab type identifier. Builtins register their ids (editor / git / terminal
  * / subagent / browser / diff) through the sidebar service; external
@@ -608,6 +608,13 @@ export function ancestorDirs(cwd: string | undefined, files: readonly string[]):
     }
   }
   return [...found]
+}
+
+/** Whether a normalized absolute file belongs to this tree's root, rather than
+ * merely sharing its string prefix. Paths outside it cannot be revealed. */
+export function pathWithin(root: string | undefined, path: string): boolean {
+  const relative = workspaceRelativePath(root, path)
+  return relative !== undefined && relative !== '.'
 }
 
 /**

@@ -50,6 +50,7 @@ export const nl: Record<string, string> = {
   explorerExcludePlaceholder: 'Patroon toevoegen, bijv. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Toevoegen',
   explorerExcludeRemove: 'Verwijderen',
+  revealCurrentFile: "Huidig bestand in boom weergeven",
   editorTreeToggle: 'Bestandsboompaneel',
   editorFileNotFound: 'Bestand niet gevonden: {path}',
   editorMarkdownPathHint: 'Markdown heeft mogelijk een backslash uit dit Windows-pad verwijderd. Probeer schuine strepen of plaats het pad in een codeblok.',

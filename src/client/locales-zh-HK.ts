@@ -67,6 +67,7 @@ export const zhHK: Record<string, string> = {
   explorerExcludePlaceholder: '新增模式，如 node_modules、*.log、**/.git',
   explorerExcludeAdd: '新增',
   explorerExcludeRemove: '移除',
+  revealCurrentFile: "在檔案樹中定位目前檔案",
   editorTreeToggle: '檔案樹面板',
   editorFileNotFound: '找不到檔案：{path}',
   editorMarkdownPathHint: 'Markdown 可能移除了 Windows 路徑中的反斜線。請改用正斜線，或將路徑放在程式碼區塊中。',

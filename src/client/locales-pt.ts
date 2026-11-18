@@ -35,6 +35,7 @@ export const pt: Record<string, string> = {
   explorerExcludePlaceholder: 'Adicionar padrão, ex.: node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Adicionar',
   explorerExcludeRemove: 'Remover',
+  revealCurrentFile: "Mostrar arquivo atual na árvore",
   editorTreeToggle: 'Painel da árvore de arquivos',
   editorFileNotFound: 'Arquivo não encontrado: {path}',
   editorMarkdownPathHint: 'O Markdown pode ter removido uma barra invertida deste caminho do Windows. Experimente usar barras normais ou colocar o caminho em um bloco de código.',

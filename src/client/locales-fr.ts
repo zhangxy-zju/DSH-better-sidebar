@@ -45,6 +45,7 @@ export const fr: Record<string, string> = {
   explorerExcludePlaceholder: 'Ajouter un motif, ex. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Ajouter',
   explorerExcludeRemove: 'Supprimer',
+  revealCurrentFile: "Afficher le fichier actuel dans l’arborescence",
   editorTreeToggle: 'Panneau d’arborescence',
   editorFileNotFound: 'Fichier introuvable : {path}',
   editorMarkdownPathHint: 'Markdown a peut-être supprimé une barre oblique inverse de ce chemin Windows. Essayez les barres obliques ou placez le chemin dans un bloc de code.',

@@ -55,6 +55,8 @@ export function TreePanel(props: {
   cwd: string | undefined
   expanded: string[]
   revealed: string[]
+  /** A positive revision clears a query so that a reveal is not hidden. */
+  revealRevision?: number
   onToggle: (path: string) => void
   onOpenFile: (path: string) => void
   /** File context-menu "open in a new tab" (passed through to FileTree). */
@@ -111,6 +113,16 @@ export function TreePanel(props: {
    * returns, so the tree looks exactly as it did before the control existed.
    */
   const [sort, setSort] = useState<FileTreeSort>(DEFAULT_FILE_TREE_SORT)
+  const revealRevision = props.revealRevision
+  const handledReveal = useRef(revealRevision)
+  useEffect(() => {
+    if (revealRevision === undefined) return
+    if (handledReveal.current === revealRevision) return
+    handledReveal.current = revealRevision
+    setQuery('')
+    setResults(null)
+    setError(null)
+  }, [revealRevision])
   const [sortOpen, setSortOpen] = useState(false)
 
   // The tree caches loaded directories per refresh tick, so content changed

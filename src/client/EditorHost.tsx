@@ -37,17 +37,17 @@ import { baseName } from './FileTree.tsx'
 import { createFrameBatcher } from './frame-batcher.ts'
 import { openClaimedNativeFile, openSidebarFile } from './sidebar-file.ts'
 import { openWithSshActive, openWithUrl, parseOpenWithConfig, resolveOpenWithTargets } from './open-with.ts'
+import { VscTarget } from 'react-icons/vsc'
 import { fileOpKey, useFileOpStream } from './ops-stream.ts'
 import { updatePluginSettings } from './plugin-settings.ts'
 import { createOpenInApp } from './open-in-app.ts'
 import { TreePanel } from './TreePanel.tsx'
 import { t } from './locales.ts'
 import { consumeLineTarget, peekLineTarget } from './line-target.ts'
-import { relativeTo } from './paths.ts'
-import { resolveNativeSidebarPath, resolveSidebarPath } from './paths.ts'
+import { relativeTo, resolveNativeSidebarPath, resolveSidebarPath } from './paths.ts'
 import { clearRetargetedPath, closePathTabs, consumeRetargetedPath, pathTabKey, retargetPathTabs } from './tree-mutations.ts'
 import type { EditorToolbarControls, EditorToolbarState, FileViewerDescriptor, TabActionDescriptor } from './service.ts'
-import { firstLeaf, insertLeafAt, leafWithTab, mintTabId, type SidebarStore, type SidebarTab } from './state.ts'
+import { firstLeaf, insertLeafAt, leafWithTab, mintTabId, pathWithin, revealPaths, type SidebarStore, type SidebarTab } from './state.ts'
 import css from './sidebar.module.css'
 
 /**
@@ -161,6 +161,8 @@ export function EditorHost(props: {
   expanded: string[]
   revealed: string[]
   onToggleDir: (path: string) => void
+  /** Native tabs reveal through their own view; the workbench uses the store. */
+  onRevealFile?: (path: string) => void
   onReferenceFile: (path: string, isDir: boolean) => void
 }) {
   const { ctx, store, scope, tab, expanded, revealed, onToggleDir, onReferenceFile } = props
@@ -177,6 +179,7 @@ export function EditorHost(props: {
   // Manual refresh (issue #167): bumping the sequence re-runs the load effect
   // with the same path/scope — the only reload entry besides open/close.
   const [reloadSeq, setReloadSeq] = useState(0)
+  const [revealRevision, setRevealRevision] = useState(0)
 
   /**
    * External header buttons (feature `tabActions`). The registry lives on the
@@ -875,6 +878,24 @@ export function EditorHost(props: {
             <IconRefreshOutlineRegular size={14} />
           </button>
         )}
+        {!showEmpty && (
+          <button
+            type="button"
+            className={css.iconButton}
+            aria-label={t('revealCurrentFile')}
+            title={t('revealCurrentFile')}
+            disabled={!pathWithin(scope.cwd, path)}
+            onClick={() => {
+              const target = resolveSidebarPath(scope.cwd, path)
+              patchMeta(ctx, tab, scope.sessionId, { treeOpen: true })
+              setRevealRevision(revision => revision + 1)
+              if (props.onRevealFile !== undefined) props.onRevealFile(target)
+              else store.reduce(state => revealPaths(state, scope.cwd, [target]))
+            }}
+          >
+            <VscTarget aria-hidden="true" size={14} />
+          </button>
+        )}
         <button
           type="button"
           className={clsx(css.iconButton, treeOpen && css.editorTreeToggleActive)}
@@ -999,6 +1020,7 @@ export function EditorHost(props: {
               cwd={scope.cwd}
               expanded={expanded}
               revealed={revealed}
+              revealRevision={revealRevision}
               onToggle={onToggleDir}
               onOpenFile={openFile}
               onOpenFileNewTab={openFileNewTab}

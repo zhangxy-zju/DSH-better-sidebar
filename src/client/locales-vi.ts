@@ -52,6 +52,7 @@ export const vi: Record<string, string> = {
   explorerExcludePlaceholder: 'Thêm mẫu, vd. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Thêm',
   explorerExcludeRemove: 'Xóa',
+  revealCurrentFile: "Hiển thị tệp hiện tại trong cây",
   editorTreeToggle: 'Panel cây tệp',
   editorFileNotFound: 'Không tìm thấy tệp: {path}',
   editorMarkdownPathHint: 'Markdown có thể đã xóa dấu gạch chéo ngược khỏi đường dẫn Windows này. Hãy thử dùng dấu gạch chéo xuôi hoặc đặt đường dẫn trong khối mã.',

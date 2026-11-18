@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {
   activateTab, allLeaves, ancestorDirs, BOTTOM_DEFAULT, BOTTOM_MIN, closeTab, CONVERSATION_MIN, createSidebarStore,
-  insertLeafAt, makeDefaultState, moveTab, moveTabToEdge, openDiffTab,
+  insertLeafAt, makeDefaultState, moveTab, moveTabToEdge, openDiffTab, pathWithin,
   openTabInBottomPane, patchTab, resizeSplit,
   resizeSplitIn, revealPaths, sanitizeState, setBottomHeight,
   splitPane, tabOpenIn, toggleBottomPanel, toggleExpanded,
@@ -805,6 +805,14 @@ describe('unread mark persistence (v0.25.0)', () => {
 })
 
 describe('revealPaths (show in folder)', () => {
+  it('rejects root/outside/partial-prefix/traversal paths for current-file revealing', () => {
+    expect(pathWithin('/work', '/work/a/b/summary.md')).toBe(true)
+    expect(pathWithin('/work', '/work')).toBe(false)
+    expect(pathWithin('/work', '/workspace/summary.md')).toBe(false)
+    expect(pathWithin('/work', '/work/../summary.md')).toBe(false)
+    expect(pathWithin(undefined, '/work/summary.md')).toBe(false)
+    expect(pathWithin('C:\\work', 'c:/work/a.md')).toBe(true)
+  })
   it('expands ancestors with their ABSOLUTE path (leading separator preserved)', () => {
     // POSIX: the root (/w/src) is not itself expanded, but the subdirs
     // below it must be recorded as ABSOLUTE paths so FileTree's

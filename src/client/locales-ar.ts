@@ -53,6 +53,7 @@ export const ar: Record<string, string> = {
   explorerExcludePlaceholder: 'أضف نمطًا، مثل node_modules أو *.log أو **/.git',
   explorerExcludeAdd: 'إضافة',
   explorerExcludeRemove: 'إزالة',
+  revealCurrentFile: "تحديد الملف الحالي في الشجرة",
   editorTreeToggle: 'لوحة شجرة الملفات',
   editorFileNotFound: 'الملف غير موجود: {path}',
   editorMarkdownPathHint: 'قد يكون Markdown قد حذف شرطة مائلة عكسية من مسار Windows. جرّب استخدام الشرطات المائلة أو وضع المسار في كتلة تعليمات برمجية.',

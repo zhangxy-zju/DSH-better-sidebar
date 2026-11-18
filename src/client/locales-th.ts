@@ -52,6 +52,7 @@ export const th: Record<string, string> = {
   explorerExcludePlaceholder: 'เพิ่มรูปแบบ เช่น node_modules, *.log, **/.git',
   explorerExcludeAdd: 'เพิ่ม',
   explorerExcludeRemove: 'ลบ',
+  revealCurrentFile: "แสดงไฟล์ปัจจุบันในแผนผังไฟล์",
   editorTreeToggle: 'พาเนลต้นไม้ไฟล์',
   editorFileNotFound: 'ไม่พบไฟล์: {path}',
   editorMarkdownPathHint: 'Markdown อาจลบแบ็กสแลชออกจากพาธ Windows นี้ ลองใช้เครื่องหมายทับหรือใส่พาธไว้ในบล็อกโค้ด',

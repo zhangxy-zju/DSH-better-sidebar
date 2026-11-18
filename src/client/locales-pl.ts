@@ -54,6 +54,7 @@ export const pl: Record<string, string> = {
   explorerExcludePlaceholder: 'Dodaj wzorzec, np. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Dodaj',
   explorerExcludeRemove: 'Usuń',
+  revealCurrentFile: "Pokaż bieżący plik w drzewie",
   editorTreeToggle: 'Panel drzewa plików',
   editorFileNotFound: 'Nie znaleziono pliku: {path}',
   editorMarkdownPathHint: 'Markdown mógł usunąć ukośnik odwrotny z tej ścieżki Windows. Użyj ukośników lub umieść ścieżkę w bloku kodu.',

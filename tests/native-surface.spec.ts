@@ -109,6 +109,30 @@ describe('createNativeTabRecords', () => {
     expect(records.get('s1', 'tab-4')?.expanded).toEqual([])
   })
 
+  it('reveals through all lazy ancestors and reissues the same request', () => {
+    const store = createSidebarStore()
+    store.setSession('s1')
+    const records = createNativeTabRecords()
+    records.attachStore(store)
+    records.ensure({
+      sessionId: 's1', id: 'tab-reveal', kind: 'editor', title: 'deep.md',
+      params: { path: '/work/a/b/deep.md' }, scope,
+    })
+    const before = records.versionOf('s1', 'tab-reveal')
+    records.revealFile('s1', 'tab-reveal', '/work/a/b/deep.md')
+    expect(records.get('s1', 'tab-reveal')?.expanded).toEqual(['/work/a', '/work/a/b'])
+    expect(records.get('s1', 'tab-reveal')?.revealed).toEqual(['/work/a/b/deep.md'])
+    expect(records.versionOf('s1', 'tab-reveal')).toBeGreaterThan(before)
+    const next = records.versionOf('s1', 'tab-reveal')
+    records.revealFile('s1', 'tab-reveal', '/work/a/b/deep.md')
+    expect(records.versionOf('s1', 'tab-reveal')).toBeGreaterThan(next)
+    expect(records.versionOf('s1', 'tab-reveal')).toBeGreaterThan(next)
+    // Another tab receives the shared ancestors, but not this reveal.
+    records.ensure({ sessionId: 's1', id: 'tab-other', kind: 'files', title: 'Files', params: undefined, scope })
+    expect(records.get('s1', 'tab-other')?.expanded).toEqual(['/work/a', '/work/a/b'])
+    expect(records.get('s1', 'tab-other')?.revealed).toEqual([])
+  })
+
   it('keeps the expansion after a tab record is DROPPED and rebuilt (the reported bug)', () => {
     // The user's flow: open a file preview (the files tab unmounts and its
     // native record is dropped), close it, return to the files page — a NEW

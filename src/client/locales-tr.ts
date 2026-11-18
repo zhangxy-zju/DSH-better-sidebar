@@ -52,6 +52,7 @@ export const tr: Record<string, string> = {
   explorerExcludePlaceholder: 'Desen ekleyin, örn. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Ekle',
   explorerExcludeRemove: 'Kaldır',
+  revealCurrentFile: "Geçerli dosyayı ağaçta göster",
   editorTreeToggle: 'Dosya ağacı paneli',
   editorFileNotFound: 'Dosya bulunamadı: {path}',
   editorMarkdownPathHint: 'Markdown bu Windows yolundaki ters eğik çizgiyi kaldırmış olabilir. Eğik çizgi kullanmayı veya yolu kod bloğuna koymayı deneyin.',

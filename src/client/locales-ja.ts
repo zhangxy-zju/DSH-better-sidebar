@@ -52,6 +52,7 @@ export const ja: Record<string, string> = {
   explorerExcludePlaceholder: 'パターンを追加（例: node_modules、*.log、**/.git）',
   explorerExcludeAdd: '追加',
   explorerExcludeRemove: '削除',
+  revealCurrentFile: "現在のファイルをツリーで表示",
   editorTreeToggle: 'ファイルツリーパネル',
   editorFileNotFound: 'ファイルが見つかりません: {path}',
   editorMarkdownPathHint: 'Markdown が Windows パスのバックスラッシュを取り除いた可能性があります。スラッシュを使うか、パスをコードブロックに入れてください。',

@@ -50,6 +50,7 @@ export const id: Record<string, string> = {
   explorerExcludePlaceholder: 'Tambahkan pola, mis. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Tambah',
   explorerExcludeRemove: 'Hapus',
+  revealCurrentFile: "Temukan file saat ini di pohon",
   editorTreeToggle: 'Panel pohon berkas',
   editorFileNotFound: 'Berkas tidak ditemukan: {path}',
   editorMarkdownPathHint: 'Markdown mungkin menghapus garis miring terbalik dari jalur Windows ini. Coba gunakan garis miring biasa atau letakkan jalur di blok kode.',

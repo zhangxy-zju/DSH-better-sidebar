@@ -38,6 +38,7 @@ export const de: Record<string, string> = {
   explorerExcludePlaceholder: 'Muster hinzufügen, z. B. node_modules, *.log, **/.git',
   explorerExcludeAdd: 'Hinzufügen',
   explorerExcludeRemove: 'Entfernen',
+  revealCurrentFile: "Aktuelle Datei im Dateibaum anzeigen",
   editorTreeToggle: 'Dateibaum-Panel',
   editorFileNotFound: 'Datei nicht gefunden: {path}',
   editorMarkdownPathHint: 'Markdown hat möglicherweise einen Backslash im Windows-Pfad entfernt. Verwende Schrägstriche oder setze den Pfad in einen Codeblock.',

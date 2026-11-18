@@ -358,6 +358,9 @@ interface TabComponentProps {
   // 以下由内置 tab 使用，外部 tab 可忽略：
   expanded?: string[]          // 文件树的展开目录集
   onToggleDir?: (path: string) => void
+  onRevealFile?: (path: string) => void // 原生右侧文件标签的目录定位回调
+  // 编辑器文件标签栏还可用 VscTarget 图标沿当前 file path 定位目录；
+  // 未使用当前标签的背景或其它会话的 content session。
   // 在会话 composer 插入一条 @ 引用。isDir=true 为目录：纯文本 `@dir/`
   // （含空格时按宿主语法加引号成 `@"my dir/"`，否则宿主读不成 folder），
   // 保留宿主文件夹装饰与补全；false 为文件：走宿主结构化引用 chip

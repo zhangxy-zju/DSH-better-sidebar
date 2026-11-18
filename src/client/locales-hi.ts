@@ -52,6 +52,7 @@ export const hi: Record<string, string> = {
   explorerExcludePlaceholder: 'पैटर्न जोड़ें, जैसे node_modules, *.log, **/.git',
   explorerExcludeAdd: 'जोड़ें',
   explorerExcludeRemove: 'हटाएँ',
+  revealCurrentFile: "वर्तमान फ़ाइल को ट्री में दिखाएँ",
   editorTreeToggle: 'फ़ाइल ट्री पैनल',
   editorFileNotFound: 'फ़ाइल नहीं मिली: {path}',
   editorMarkdownPathHint: 'Markdown ने Windows पथ से बैकस्लैश हटा दिया हो सकता है। फ़ॉरवर्ड स्लैश आज़माएँ या पथ को कोड ब्लॉक में रखें।',

@@ -36,8 +36,8 @@ import { useSessionRoot } from '../use-session-root.ts'
 import { useSessionScope } from '../session-scope.ts'
 import type { BetterSidebarService, NativePathTab } from '../service.ts'
 import { t } from '../locales.ts'
-import { isUnread, toggleExpanded } from '../state.ts'
-import type { SidebarStore, SidebarTab, TabType } from '../state.ts'
+import { isUnread, revealPaths, toggleExpanded } from '../state.ts'
+import type { SidebarState, SidebarStore, SidebarTab, TabType } from '../state.ts'
 import css from '../sidebar.module.css'
 
 /** The chip glyph's size: the tab strip's own icon scale. */
@@ -191,6 +191,8 @@ export interface NativeTabRecords {
    * view of that session mirrors); `sessionId` names the record's SEAT.
    */
   toggleExpanded(sessionId: string, id: string, path: string): void
+  /** Expand ancestors and issue a fresh reveal to this tab's FileTree. */
+  revealFile(seatSessionId: string, id: string, path: string): void
   /**
    * Keep only records of these sessions; the rest are forgotten. A session the
    * user deleted never unmounts anything the plugin can hook, so its records
@@ -406,6 +408,24 @@ export function createNativeTabRecords(): NativeTabRecords {
       store.reduceFor(scopeSessionId, state => toggleExpanded(state, path))
       syncExpanded()
     },
+    revealFile(seatSessionId, id, path) {
+      const key = viewKey(seatSessionId, id)
+      const entry = views.get(key)
+      const boundStore = store
+      if (entry === undefined || boundStore === undefined) return
+      const contentSessionId = entry.scope.sessionId
+      const reveal = (state: SidebarState): SidebarState => revealPaths(state, entry.scope.cwd, [path])
+      if (boundStore.getSnapshot().sessionId === contentSessionId) boundStore.reduce(reveal)
+      else boundStore.reduceFor(contentSessionId, reveal)
+      const revealed = boundStore.getSessionState(contentSessionId)?.revealed ?? [path]
+      // This highlight belongs to the tab, not to all trees in the session.
+      // `put` reissues even an identical path, so a second click scrolls again.
+      put(key, {
+        ...entry,
+        expanded: boundStore.getSessionState(contentSessionId)?.expanded ?? entry.expanded,
+        revealed,
+      })
+    },
     retain(sessions) {
       let dropped = false
       for (const [key, entry] of [...views]) {
@@ -561,6 +581,7 @@ export function NativeTabBody(props: NativeBodyInjected & NativeBodyFrameworkPro
           expanded: view.expanded,
           revealed: view.revealed,
           onToggleDir: (path: string) => { records.toggleExpanded(seatSessionId, nativeTab.id, path) },
+          onRevealFile: (path: string) => { records.revealFile(seatSessionId, nativeTab.id, path) },
           onReferenceFile: (path: string, isDir: boolean) => { referenceInChat(ctx, scopeSessionId, path, isDir) },
           onOpenDiff: (tab: SidebarTab) => {
             service.openTab({
