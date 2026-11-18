@@ -1,45 +1,59 @@
-# dsh-better-sidebar：当前文件定位补丁
+# Better Sidebar 当前文件定位补丁
 
-**定位按钮位于 Markdown 文件工具栏的靶心图标 `◎`，不是独立文件页或文件树按钮。**
+## 现在怎么使用
 
-本目录是 `dsh-better-sidebar` 的插件源码 checkout（保留自己的 `.git`），不是 specs 临时任务材料。
-当前 Web profile 通过本地目录链接安装这里提供的补丁版；`node_modules` 与 `lib` 是本机开发/构建产物，**不作为远程恢复输入**。
+打开 Markdown 后，点击文件路径旁的 **◎ 在目录树中定位当前文件**。
+插件会打开编辑器的文件侧栏、清除活动搜索、逐级展开父目录、选择当前文件，并将目标滚动到目录视口中央。不会修改文件或会话、运行 model 或写 Git。
 
-## 当前实际版本（2026-11-18）
+- 宿主：DeepSeek Harness Web `0.2.2-rc.4`。
 
-- DSH：`0.2.2-rc.4`，profile：`web`。
-- 官方插件基底：`dsh-better-sidebar 0.32.1`。
-- 本地补丁包：`0.32.1-reveal.1`。
-- 稳定源码位置：
-  `/Users/mumu/Documents/Work/ADA/work-summary/ADA_WorkSpace/operations/dsh-better-sidebar`
-- 补丁的能力：Markdown 工具栏定位当前文件，打开右侧文件树，逐级展开父目录，精确定位并选中文件，滚动到目录视口内；活动搜索会清空；不会切换会话或修改文件内容/Git。
-- 与官方 `0.32.1` 的边界：官方新版没有完整“打开当前 Markdown → 一键定位到目录选中文件”的入口；这里新增完整路径导航和延迟精确选择。保留其他插件的回调接口及 Peer 插件接入方式。
+- 官方基底：[`dsh-better-sidebar 0.32.1`](https://github.com/omdsh-dev/DSH-better-sidebar/releases/tag/v0.32.1)。
+- 本地补丁：`0.32.1-reveal.1`。
+- 安装源码：`/Users/mumu/Documents/Work/ADA/work-summary/ADA_WorkSpace/operations/dsh-better-sidebar`。
+- 取恢复源码：[个人 fork](https://github.com/zhangxy-zju/DSH-better-sidebar)，分支 `feat/reveal-current-file-0321`，当前 revision `35f0c38dde4ca354e8fbcf02fbada3961dc52b7f`。
+- 本目录是保留 `.git` 的插件 checkout；`node_modules/` 是开发依赖，`lib/` 为构建输出。它们不作为同步输入。
 
-## 换机恢复（主机安装 DeepSeek Harness 的场景）
+官方 0.32.1 不具备完整的一键文件定位入口。这里的补丁在既有目录懒加载基础上实现精确定位；它不是官方新版本的承诺。
 
-**适用对象主要是 Mac mini；MacBook 只是浏览器通过 SSH 访问 Mac mini 时无需再次安装 DSH 或插件。**
-先恢复 [DSH 主交接](../deepseek-harness-dsh/README.md) 的服务、profile 和工作区，再恢复这里的本地插件。
+## 换机恢复
 
-### A. 获取本插件真实源码
+仅 MacBook 浏览器通过 SSH 看本服务时，不需要在 MacBook 安装 DeepSeek Harness 或插件。下面针对**提供 Web 服务的 Mac mini 或其它主机**。
 
-如果已经随 `work-summary` 登记子模块并取得上层 `master`：
+### 1. 先恢复服务，恢复兼容 DSH
+
+先遵循 [DeepSeek Harness 换机交接](../deepseek-harness-dsh/README.md) 恢复 `web` profile、工作区和现有 `com.mumu.dsh-web`，不要用默认 profile 覆盖现有模型/LaunchAgent 配置。
+
+若没有安装 DSH，可先使用这一已验证版本；其它版本需另核对插件 peer 要求和迁移文档（本插件要求 DSH `0.2.2-rc.2+`）：
+
+```sh
+cd /Users/mumu/Documents/Work/ADA
+node --version # 本版本 DSH 要求 Node >= 24.9
+npm install --global @deepseek-ai/dsh@0.2.2-rc.4
+```
+
+已有兼容 DSH 以及其它插件、模型设置时，不必重复此升级，也不要只装本插件；需按现有不涉及凭据的配置文档恢复它们。
+
+### 2. 通过上层 work-summary 恢复本子模块
+
+本目录是**独立 Git submodule**；不是 specs 临时产物，也不是嵌在父仓中的普通源码目录：
 
 ```sh
 WORK=/Users/mumu/Documents/Work/ADA
 PLUGIN="$WORK/work-summary/ADA_WorkSpace/operations/dsh-better-sidebar"
 git -C "$WORK/work-summary" submodule update --init --recursive -- ADA_WorkSpace/operations/dsh-better-sidebar
-# 已初始化的 machine 在拉取后也应执行上面的一行，保持记录的插件 revision。
 ```
 
-若只有普通 clone，没有执行 `submodule update`，该目录可能只是空目录，DSH 会识别不到本地插件包。此时应补齐上层子模块记录指向的源码，不要把这里误当成取消“无 specs 目录”约定的理由。
-源码恢复后，`package.json` 应存在，版本应为当时的补丁版，例如 `0.32.1-reveal.1`。
-本插件自己的远端以 `git remote -v` 和恢复时记录为准；未经用户确认不要手工强覆盖到第三方仓最新 `dev` / `main` —— 那样会把本地 patch 改掉。
+这一步会以父仓记录的补丁 revision 恢复真实源码。普通 `git pull` 不会自动下载未初始化的 submodule，不能只拉父仓便声称插件已可安装。检查：
 
-### B. 安装兼容 DSH 和完整开发依赖
+```sh RGCTX
+test -f "$PLUGIN/package.json"
+node -p "require('$PLUGIN/package.json').version"
+git -C "$PLUGIN" rev-parse --short HEAD
+```
 
-**普通约定是先停在已验证版本、再根据已知迁移说明有计划升级，不要自动取 npm latest。**
-官方插件 `0.32.1` 要求 DSH `0.2.2-rc.2+`，当前组合使用的源码插件构建锁文件基于 rc.2 系列类型声明，实际运行宿主为 rc.4。
-适合的修复件版本可随 patch 明确提升；不要同时将“官方升级”和“给定位新增功能”混为一次无可回退的操作。
+应看到插件版本 `0.32.1-reveal.1`、父仓登记的对应 commit。若此 revision 已不存在或 fork 无法访问，应先修复仓库/凭据，不能用旧的 specs 路径替代。源码和 README 随 `work-summary-master` + fork 分发；依赖输出不应复制旧设备的绝对路径。
+
+### 3. 构建和测试
 
 ```sh
 cd "$PLUGIN"
@@ -51,54 +65,62 @@ pnpm build
 pnpm check:consumer-types
 ```
 
-需要 Node.js 满足插件和 DSH 的要求；常见 npm 的商店位置/ pnpm 版本报错时沿用本机 `work-summary` 已登记的 pnpm11 路径，不要在 profile 目录手改 `package.json`、`pnpm-lock.yaml`、`cordis.patch.yml` 或直接跑 pnpm。
+不要手改 profile 的 `package.json` 或 `cordis.patch.yml`，也不在 profile 目录直接执行 pnpm；这些由插件管理器负责。
+依赖安装超时是在外网下载节点依赖，本地缓存完整时优先 `--prefer-offline`，不要删除配置以绕过失败。
 
-注意本机 Git hook（如强制提交格式 `[to #需求id]`）可能使此上游测试的临时 Git commit 失败；这不是定位交互测试结果。应在**不绕过/改写生产仓库 hooks**的前提下报告或隔离测试的定义问题。当前验证了类型检查、构建、consumer 检查、lint 以及定位相关的 31 项测试，没有声称基础插件的全量测试都是绿色。
+本公司在其它工作仓注入的 Git hook 影响测试创建临时提交；因此曾出现套餐全量 Git 用例 16 个与本功能无关的失败。没有把所有基础插件测试都宣称通过。**此项功能相关的类型检查、lint、构建接口检查与 157 项回归检查通过**；未随机跳过测试以显示全绿。当前真实测试请读执行输出，不把上次报告当当前验收。
 
-### C. 安装本目录的补丁插件（不要重装整个 profile）
+### 4. 将本地目录作为插件安装
 
-用以下三行覆盖同一 bundle 的**引用版本或路径**；插件已启用时先停用它，移除的是 bundle 包引用，不是到源码目录删除文件：
+**管理器场景**，使用 Agent 可使用插件管理器执行：
 
-1. 插件管理：`set_bundle` → `target=dsh-better-sidebar` → `enabled=false`；
-2. 插件管理：`remove_bundle` → `target=dsh-better-sidebar`；
-3. 插件管理：`install_bundle` → `target=$PLUGIN`；当管理器提示已启用但未移动或不是 `applied` 时，先按 `nextStep` 处理，**不要放弃到 specs 恢复旧链接**。
+1. `set_bundle`：`target=dsh-better-sidebar`，`enabled=false`；
+2. `remove_bundle`：`target=dsh-better-sidebar`（移除包引用，不是删除源码目录）；
+3. `install_bundle`：`target=$PLUGIN`。
 
-也可以打开 DSH Web UI 的 **插件 → 添加插件**，选择本目录；已安装同 id 时需要先停用/移除其官方远程安装的引用。不要叠加安装无语义差别的重复行。检查 profile 中实际链接：
+**网页场景**，在 **插件 → 添加插件** 选择 `PLUGIN`；若同 id 已存在，先停用并移除原官方 bundle 再安装此本地目录。不能把 `package.json` 提供插件名的远程安装与本补丁目录链接机械地重复挂载。
+读取插件管理器返回的 `application` / `nextStep`；已停用与已完整安装并不是一件事。确认版本 `0.32.1-reveal.1` 已启用且 profile 链接指向此目录，不得再指向已移除的 specs 副本：
 
 ```sh
 readlink "$HOME/.dsh/profiles/web/node_modules/dsh-better-sidebar"
 ```
 
-应指向这个 operations 路径。**本机 profile 本身不保证随 work-summary 同步**，迁移机器时必须执行插件安装行，而不能只复制 `work-summary` 然后就声称插件已使用补丁。
+工作区和用户 `web` profile 是独立配置层，父仓恢复不能取代这里的安装动作。
 
-### D. 恢复服务与验收
+### 5. 重启旧服务，验收 GUI
 
-沿用已经安装的 `com.mumu.dsh-web` / `dsh-web-service` 原服务，不另起抢占 `:3080` 的 Web。确认本机启动器监听 `127.0.0.1:3080`。插件从 npm `node_modules` 目录切换为本地目录时通常要求 DSH 进程重启；使用本机 launchd 重载，或安全停止原进程再由 launchd 拉回，不要为了让改动生效额外开第二大宿主。
+`com.mumu.dsh-web` 是本机用户 LaunchAgent，保持原有 `3080` 页面，不另外启动第二个 DSH 服务。换本地目录后，看到管理器需要重启或切换包位置时执行：
 
 ```sh
 launchctl kickstart -k "gui/$(id -u)/com.mumu.dsh-web"
 lsof -nP -iTCP:3080 -sTCP:LISTEN
 ```
 
-readlink 中的链接与进程读取的适配进程如上，确认新版适用于恢复机再让普通用户提供当前会话内容 unattended demo。验收步骤：
+沿用 [双机接入说明](../deepseek-harness-dsh/macbook.md)，不把最新含认证 token 的 URL 写入本文或父仓。
 
-1. 新建无任务会话，不填写任何模型提示；从右上角文件 → 文件树打开多层嵌套的 `.md`。
-2. 点击文件路径旁的靶心按钮 `◎ 在目录树中定位当前文件`。
-3. 确认目录自动展开，选中的为当前 **精确路径** 的文件而非祖先目录，目标进入视口中央。
-4. 树搜索先填入不匹配词，点击后应清空搜索且仍能定位。
-5. 再用键盘 Tab / Enter 激活，焦点保留在可访问按钮上，键盘 Enter 不能有点击丢失焦点或重复动作。
-6. 用 `readlink`（旧源码目录不可恢复为非记录路径）再确认看到的是新路径补丁。
+验收只需 Web 控制台：
 
-验收旧截图：[current Markdown reveal](./evidence-current-file-reveal-final.png)。意图是说选中文件位于视口中央，而不是只根据截图判断祖先目录已经展开。
+1. 新建空会话或直接编辑无模型提示，在右上「文件」的目录树打开一个多层嵌套 `.md`。
+2. 点击路径栏的 **◎**，确认展开的是精确父目录、选中的是目标文件（`data-dsh-selected=true`、`aria-pressed=true`）而不是祖先目录。
+3. 目标行应在树视口内居中，不能使右侧整体滚动或编辑文件。
+4. 先在树搜索中输入不匹配词再定位，应清搜索且仍能选中该文件。
+5. 重复点击仍能定位；键盘激活保留按钮焦点。
 
-## 升级与维护注意事项
+本地旧验收图：[定位验收截图](./evidence-current-file-reveal-final.png)。在上层主交接以本机再次复验，不宣称已经在第二台机器通过。
 
-- Unreleased patch 放在其自己的插件 checkout 中有版本化状态，不继续放 specs，也不手写 profile state 取悦恢复脚本。
-- 原上游定位链请从文件工具栏开始：`EditorHost` 根据 `scope.cwd` 和文件绝对路径发起定位；原生右侧编辑器标签通过 `native/tab-adapter` 定位当前那个窗口的树；`TreePanel` 对这次定位清空搜索；`FileTree` 等真正行出来后选择当前文件并在树容器居中。没有后台 agent 指令或新工具。
-- **换上游官方版本可能主动移除此补丁。** 想升级官方插件先记录正在使用的补丁提交/revision，读取新版本进度/migration，取新版本源码后重新应用 `reveal` 小 diff，而不是安装 latest 就声称补丁还在。需要区分宿主 DSH 版本、插件 peer 要求和具体 `.d.ts` 构建锁目录；不要为旧宿主强开版本豁免。
-- 补丁随当前个人 fork 源码分支和父仓的 revision 迁移。不得直接向插件作者上游推送本机功能及换机文档。currentUser 当前是 GitHub `zhangxy-zju`。
-- 本 README 不承诺线上业务 CR、生成资产或 app workflow 这些处于另域的发布流程，它是只为本机操作的本地 DeepSeek 插件补丁。
+## 升级与维护
 
-## 恢复验证记录
+- 如需上游更新，先读取新版本的发布说明/兼容要求，以新版本源码为基础重新应用本功能的小 patch。不要用 `npm latest` 覆盖后仍声称定位补丁存在。
+- 本补丁先按匹配 DSH 的 release tag 直接建立功能分支，不是上游的 `dev` 提交。不推插件原作者仓库，也不创建 PR，除非用户另提贡献许可。上游合并工作流用在该时才合规执行。
+- 当前执行的是个人 fork 上的补丁分支，父仓以 Git revision 精确恢复。进一步改动时先在插件本地检查差异、不夹带任务数据，按需再推同名 fork 分支，并显式更新父仓 submodule revision。
+- 原生编辑器调速器通过 `native/tab-adapter` 维护每-tab 展开的目录和 reveal，在 `TreePanel` 对本次点击清搜索，`FileTree` 只锁定实际出现的目标行；循环、选中与滚动一个版本。修改时不要退回到“先选祖先路径以蒙混 reveal”。
+- 此文档仅针对插件和恢复，不涉及业务 CR 合入、线上部署或换 model 凭据。模型/API 密钥按原来各自安全约定恢复，绝不写进这里。
 
-于 2026-11-18 DSH rc.4、插件 0.32.1-reveal.1、macOS 本机的 existing `http://127.0.0.1:3080` 上实测：深目录定位至文件 `summary.md`；`data-dsh-selected=true`，文件仅在此目标而不是祖先目录上选中；目标行 top 461px（视口 830px）且视口 scrollTop 6327px；第二次定位和带搜索清空定位验证；键盘定位保留焦点 。源码目录移动到本 operations 目录后重新安装新链接的验证以当前报告为准，只引用最终产物构建通过，不编造多机测试。
+## 本次实现与验证范围
+
+2026-11-18 已基于 DSH `0.2.2-rc.4` 和插件 `0.32.1-reveal.1`：
+
+- 子模块式的 task 目录迁移到本正式位置，后台正在运行的 profile 插件已重新安装此处。
+- 在已派生 release 中构建和针对性回归（目录/状态测试、旧原生文件树回归、i18n、类型及 lint）已通过。
+- 实际 GUI 中读取到目标文件 `summary.md` 的 `data-dsh-selected=true`；目标行 `top=461px`，位于 830px 视口内，实际目录滚动量 `6327px`；重复定位、搜索清空，以及键盘焦点均验证通过。
+- 全量上游基础测试中的公司 hook 兼容问题不等同于本功能失败，上面明确披露，坐标测量也不是 GUI 截图单独猜测。
